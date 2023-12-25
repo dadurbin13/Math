@@ -21,6 +21,9 @@ def plot_special_collatz_sequences(start, end):
         sequence_length = len(sequence)
         sequence_max = max(sequence)
 
+        # Print the current integer and its Collatz sequence
+        print(f"{', '.join(map(str, sequence))}")
+
         if sequence_length > longest_length:
             longest_length = sequence_length
             longest_sequence = (n, sequence)
