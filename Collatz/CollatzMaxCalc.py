@@ -1,5 +1,6 @@
 import time
 import signal
+from datetime import datetime
 
 def collatz_sequence(n):
     sequence = [n]
@@ -15,7 +16,8 @@ def update_log_file(number_with_longest_sequence, longest_sequence_length, numbe
     with open(log_file, 'w') as file:
         file.write(f"{number_with_longest_sequence},{longest_sequence_length}\n")
         file.write(f"{number_with_highest_max},{highest_max}\n")
-        file.write(f"{n},{sequence_length},{sequence_max}\n")
+        file.write(f"{n},{sequence_length},{sequence_max}\n\n")
+        file.write(f"Last Update at {datetime.now():%Y-%m-%d %H:%M:%S}")
 
 def signal_handler(signum, frame, log_file, number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max):
     print("\nInterrupt received, stopping...")
@@ -27,7 +29,6 @@ def find_special_collatz_numbers(minutes=None, log_file="CollatzProgress.log"):
     global stop_requested
     stop_requested = False
     start_time = time.time()
-    update_time = time.time()
 
     signal.signal(signal.SIGINT, lambda s, f: signal_handler(s, f, log_file, number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max))
 
@@ -58,8 +59,7 @@ def find_special_collatz_numbers(minutes=None, log_file="CollatzProgress.log"):
 
         if update_required:
             update_log_file(number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max, log_file)
-            print(f"Processing Number: {n:,}; Sequence Max: {sequence_max:,}; Sequence Length: {sequence_length:,}; Time since last update: {time.time() - update_time:.1f} seconds")
-            update_time = time.time()
+            print(f"{datetime.now():%Y-%m-%d %H:%M:%S} - Processing Number: {n:,}; Sequence Max: {sequence_max:,}; Sequence Length: {sequence_length:,}")
 
         n += 1
 
