@@ -27,6 +27,7 @@ def find_special_collatz_numbers(minutes=None, log_file="CollatzProgress.log"):
     global stop_requested
     stop_requested = False
     start_time = time.time()
+    update_time = time.time()
 
     signal.signal(signal.SIGINT, lambda s, f: signal_handler(s, f, log_file, number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max))
 
@@ -45,7 +46,7 @@ def find_special_collatz_numbers(minutes=None, log_file="CollatzProgress.log"):
         sequence_length = len(sequence)
         sequence_max = max(sequence)
 
-        update_required = sequence_length > longest_sequence_length or sequence_max > highest_max or n % 100000 == 0
+        update_required = sequence_length > longest_sequence_length or sequence_max > highest_max or n % 1000000 == 0
 
         if sequence_length > longest_sequence_length:
             longest_sequence_length = sequence_length
@@ -57,7 +58,8 @@ def find_special_collatz_numbers(minutes=None, log_file="CollatzProgress.log"):
 
         if update_required:
             update_log_file(number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max, log_file)
-            print(f"Processing Number: {n:,}; Sequence Max: {sequence_max:,}; Sequence Length: {sequence_length:,}")
+            print(f"Processing Number: {n:,}; Sequence Max: {sequence_max:,}; Sequence Length: {sequence_length:,}; Time since last update: {time.time() - update_time:.1f} seconds")
+            update_time = time.time()
 
         n += 1
 
