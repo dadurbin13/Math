@@ -1,6 +1,8 @@
 import signal
 from datetime import datetime
 
+filename = "PrimeProgress.log"
+
 def is_prime(n):
     if n <= 1:
         return False
@@ -9,7 +11,7 @@ def is_prime(n):
             return False
     return True
 
-def load_last_number(filename):
+def load_last_number():
     with open(filename, 'r') as file:
         lines = file.readlines()
         if lines:
@@ -19,7 +21,7 @@ def load_last_number(filename):
 
 def signal_handler(sig, frame):
     global max_prime
-    with open("MaxPrime.log", "w") as file:
+    with open(filename, "w") as file:
         file.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {max_prime}")
         print(f"\n{datetime.now():%Y-%m-%d %H:%M:%S} - {max_prime:,}")
     print("Exiting...")
@@ -27,9 +29,8 @@ def signal_handler(sig, frame):
 
 def main():
     global max_prime
-    filename = "MaxPrime.log"
 
-    num = load_last_number(filename)
+    num = load_last_number()
     max_prime = num
 
     while True:
