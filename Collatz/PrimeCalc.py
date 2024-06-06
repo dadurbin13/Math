@@ -1,73 +1,28 @@
-# TODO: Refactor for prime numbers
+import itertools as it
 
-import time
-import signal
-
-def collatz_sequence(n):
-    sequence = [n]
-    while n > 1:
-        if n % 2 == 0:
-            n = n // 2
+def erat2a():
+    D = {}
+    yield 2
+    for q in it.islice(it.count(3), 0, None, 2):
+        p = D.pop(q, None)
+        if p is None:
+            D[q*q] = q
+            yield q
         else:
-            n = 3 * n + 1
-        sequence.append(n)
-    return sequence
+            x = q + 2*p
+            while x in D:
+                x += 2*p
+            D[x] = p
 
-def update_log_file(number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max, log_file):
-    with open(log_file, 'w') as file:
-        file.write(f"{number_with_longest_sequence},{longest_sequence_length}\n")
-        file.write(f"{number_with_highest_max},{highest_max}\n")
-        file.write(f"{n},{sequence_length},{sequence_max}\n")
+def log_primes():
+    with open("Primes.log", "w") as f:
+        f.write("Prime numbers:\n")
+        start_time = time.time()
+        prime_generator = erat2a()
+        for i, prime in enumerate(prime_generator):
+            print(f"Prime {i + 1}: {prime}")
+            f.write(f"{i + 1}: {prime}\n")
+            if i % 1000 == 0:
+                print(f"Found {i + 1} primes in {time.time() - start_time:.2f} seconds")
 
-def signal_handler(signum, frame, log_file, number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max):
-    print("\nInterrupt received, stopping...")
-    update_log_file(number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max, log_file)
-    global stop_requested
-    stop_requested = True
-
-def find_special_collatz_numbers(minutes=None, log_file="CollatzProgress.log"):
-    global stop_requested
-    stop_requested = False
-    start_time = time.time()
-
-    signal.signal(signal.SIGINT, lambda s, f: signal_handler(s, f, log_file, number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max))
-
-    # Read the current state from the log file
-    with open(log_file, 'r') as file:
-        lines = file.readlines()
-        number_with_longest_sequence = int(lines[0].split(',')[0])
-        longest_sequence_length = int(lines[0].split(',')[1])
-        number_with_highest_max = int(lines[1].split(',')[0])
-        highest_max = int(lines[1].split(',')[1])
-        n = int(lines[2].split(',')[0])
-
-    # Main calculation loop
-    while (minutes is None or time.time() - start_time < minutes * 60) and not stop_requested:
-        sequence = collatz_sequence(n)
-        sequence_length = len(sequence)
-        sequence_max = max(sequence)
-
-        update_required = sequence_length > longest_sequence_length or sequence_max > highest_max or n % 100000 == 0
-
-        if sequence_length > longest_sequence_length:
-            longest_sequence_length = sequence_length
-            number_with_longest_sequence = n
-
-        if sequence_max > highest_max:
-            highest_max = sequence_max
-            number_with_highest_max = n
-
-        if update_required:
-            update_log_file(number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max, log_file)
-            print(f"Processing Number: {n:,}; Sequence Max: {sequence_max:,}; Sequence Length: {sequence_length:,}")
-
-        n += 1
-
-    # Update the log file before exiting normally
-    update_log_file(number_with_longest_sequence, longest_sequence_length, number_with_highest_max, highest_max, n, sequence_length, sequence_max, log_file)
-
-    print(f"Finished at {n:,}")
-    print(f"Number with the longest sequence: {number_with_longest_sequence:,} (Length: {longest_sequence_length:,})")
-    print(f"Number with the highest max value: {number_with_highest_max:,} (Max Value: {highest_max:,})")
-
-find_special_collatz_numbers()
+log_primes()
