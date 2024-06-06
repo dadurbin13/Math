@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def collatz_sequence(n):
     sequence = [n]
     while n != 1:
@@ -16,44 +18,19 @@ def load_last_number(filename):
             return int(last_line)
         return 0
 
-def save_collatz_sequences(sequence, filename):
-    with open(filename, 'a') as file:
-        file.write(f"{', '.join(str(num) for num in sequence)}\n")
-
-def remove_duplicates(filename):
-    with open(filename, "r") as file:
-        log_content = file.read()
-
-    lines = log_content.split("\n")
-
-    unique_lines = []
-    for i, line in enumerate(lines):
-        line = line.strip()
-        if not line:
-            unique_lines.append(lines[i-1].strip())
-            continue
-        for j in range(i + 1, len(lines)):
-            line2 = lines[j].strip()
-            if not line2:
-                continue
-            if not set(line).issubset(line2):
-                unique_lines.append(line)
-                break
-
-    with open(filename, "w") as file:
-        file.write("\n".join(unique_lines))
-
 def main():
     filename = "CollatzSequences.log"
 
     num = load_last_number(filename)
 
-    while num < 50:
-        num += 1
-        sequence = collatz_sequence(num)
-        save_collatz_sequences(sequence, filename)
+    while True:
+        with open(filename, 'a') as file:
+            for i in range(10000):
+                num += 1
+                sequence = collatz_sequence(num)
+                file.write(f"{', '.join(str(number) for number in sequence)}\n")
 
-    remove_duplicates(filename)
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {sequence}")
 
 if __name__ == "__main__":
     main()
